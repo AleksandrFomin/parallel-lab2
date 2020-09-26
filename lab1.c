@@ -128,7 +128,7 @@ int main(int argc, char* argv[])
 	double *M1, *M2, *M2_copy;
 	int A = 540;
 	unsigned int seed1, seed2;
-	double X;
+	// double X;
 
 	N = atoi(argv[1]); /* N равен первому параметру командной строки */
 	gettimeofday(&T1, NULL); /* запомнить текущее время T1 */
@@ -137,14 +137,14 @@ int main(int argc, char* argv[])
 	M2 = malloc(sizeof(double) * N / 2);
 	M2_copy = malloc(sizeof(double) * N / 2);
 
-	for (i = 0; i < 1; i++) /* 50 экспериментов */
+	for (i = 0; i < 50; i++) /* 50 экспериментов */
 	{
 		seed1 = i;
 		seed2 = i;
 		fill_array(M1, N, 1, A, &seed1);
 		fill_array(M2, N / 2, A, 10 * A, &seed2);
 
-		printf("Fill arrays\n");
+		// printf("Fill arrays\n");
 		// print_array(M1, N);
 		// print_array(M2, N / 2);
 		
@@ -152,25 +152,25 @@ int main(int argc, char* argv[])
 		copy_arr(M2, N / 2, M2_copy);
 		map_m2(M2, N / 2, M2_copy);
 
-		printf("Map\n");
+		// printf("Map\n");
 		// print_array(M1, N);
 		// print_array(M2, N / 2);
 
 		apply_merge_func(M1, M2, N / 2);
-		printf("Merge\n");
+		// printf("Merge\n");
 		// print_array(M2, N / 2);
 
 		heapSort(M2, N / 2);
-		printf("Sort\n");
+		// printf("Sort\n");
 		// print_array(M2, N / 2);
 
-		X = reduce(M2, N / 2);
-		printf("X = %f\n", X);
+		reduce(M2, N / 2);
+		// printf("X = %f\n", X);
 	}
 	gettimeofday(&T2, NULL); /* запомнить текущее время T2 */
 
 	delta_ms = 1000 * (T2.tv_sec - T1.tv_sec) + (T2.tv_usec - T1.tv_usec) / 1000;
-	printf("\nN=%d. Milliseconds passed: %ld\n", N, delta_ms); /* T2 - T1 */
+	printf("%d %ld\n", N, delta_ms); /* T2 - T1 */
 
 	free(M1);
 	free(M2);
