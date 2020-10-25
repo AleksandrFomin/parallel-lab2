@@ -1,11 +1,12 @@
 #!/bin/bash
 
 binary=$1
-N1=$2
-N2=$3
+K=$2
+N1=$3
+N2=$4
 delta=$(((N2-N1)/10))
 
 for i in {1..10}
 do
-	./${binary} $((N1+$i*$delta))
+	./${binary} $K $((N1+$i*$delta))
 done

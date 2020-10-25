@@ -3,6 +3,7 @@
 #include <float.h>
 #include <sys/time.h>
 #include <math.h>
+#include "../FW_1.3.1_Lin64/fwSignal.h"
 
 void fill_array(double *arr, int size, double left, double right, unsigned int *seedp)
 {
@@ -25,20 +26,26 @@ void print_array(double *arr, int size)
 void map_m1(double *arr, int size)
 {
 	int i;
+	Fw64f *pSrc = arr;
+	Fw64f *pDst = malloc(sizeof(Fw64f) * size);
+	Fw64f *constArr = malloc(sizeof(Fw64f) * size);
 	for (i = 0; i < size; i++) {
-		arr[i] = tanh(arr[i]) - 1;
+		constArr[i] = 1;
 	}
+
+	fwsTanh_64f_A53(pSrc, pDst, size);
+	fwsSub_64f(constArr, pDst, pSrc, size);
+	free(pDst);
+	free(constArr);
 }
 
 void map_m2(double *arr, int size, double *arr_copy)
 {
-	int i;
-	for (i = 0; i < size; i++) {
-		double prev = 0;
-		if (i > 0)
-			prev = arr_copy[i - 1];
-		arr[i] = sqrt(exp(1.0) * (arr_copy[i] + prev));
-	}
+	Fw64f *pSrc = arr;
+	Fw64f *pSrcCopy = arr_copy;
+	fwsAdd_64f_I(pSrcCopy, pSrc + 1, size - 1);
+	fwsMulC_64f_I(exp(1.0), pSrc, size);
+	fwsSqrt_64f_I(pSrc, size);
 }
 
 void copy_arr(double *src, int len, double *dst)
@@ -50,10 +57,13 @@ void copy_arr(double *src, int len, double *dst)
 
 void apply_merge_func(double *m1, double *m2, int m2_len)
 {
-	int i;
-	for (i = 0; i < m2_len; i++) {
-		m2[i] = fabs(m1[i] - m2[i]);
-	}
+	Fw64f *pSrc1 = m1;
+	Fw64f *pSrc2 = m2;
+	Fw64f *pDst = malloc(sizeof(Fw64f) * m2_len);
+
+	fwsSub_64f(pSrc2, pSrc1, pDst, m2_len);
+	fwsAbs_64f(pDst, pSrc1, m2_len);
+	free(pDst);
 }
 
 // Функция "просеивания" через кучу - формирование кучи
@@ -130,7 +140,9 @@ int main(int argc, char* argv[])
 	unsigned int seed1, seed2;
 	// double X;
 
-	N = atoi(argv[1]); /* N равен первому параметру командной строки */
+	fwSetNumThreads(atoi(argv[1]));
+
+	N = atoi(argv[2]); /* N равен второму параметру командной строки */
 	gettimeofday(&T1, NULL); /* запомнить текущее время T1 */
 
 	M1 = malloc(sizeof(double) * N);
@@ -160,7 +172,7 @@ int main(int argc, char* argv[])
 		// printf("Merge\n");
 		// print_array(M2, N / 2);
 
-		heapSort(M2, N / 2);
+		// heapSort(M2, N / 2);
 		// printf("Sort\n");
 		// print_array(M2, N / 2);
 

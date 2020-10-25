@@ -1,0 +1,48 @@
+Download
+https://osdn.net/frs/g_redir.php?m=jaist&f=framewave%2Fframewave-releases%2FFramewave+1.3.1%2FFW_1.3.1_Lin64.tar.gz
+
+Copy to 
+~/Documents/itmo/master/balakshin/lab2/
+and extract
+
+cd FW_1.3.1_Lin64/lib
+ln -sf ./libfwBase.so.1.3.1 libfwBase.so
+ln -sf ./libfwSignal.so.1.3.1 libfwSignal.so
+ln -sf ./libfwImage.so.1.3.1 libfwImage.so
+ln -sf ./libfwJPEG.so.1.3.1 libfwJPEG.so
+ln -sf ./libfwVideo.so.1.3.1 libfwVideo.so
+
+ln -sf ./libfwBase.so.1.3.1 libfwBase.so.1
+ln -sf ./libfwSignal.so.1.3.1 libfwSignal.so.1
+ln -sf ./libfwImage.so.1.3.1 libfwImage.so.1
+ln -sf ./libfwJPEG.so.1.3.1 libfwJPEG.so.1
+ln -sf ./libfwVideo.so.1.3.1 libfwVideo.so.1
+
+
+
+FW_1.3.1_Lin64/fwBase.h - объявления типов
+FW_1.3.1_Lin64/fwSignal.h - заголовки математических функций
+
+В коде
+#include "../FW_1.3.1_Lin64/fwSignal.h"
+
+Если я правильно понял, то использовать их надо как-то так:
+
+Было:
+for (i = 0; i < size; i++) {
+	arr[i] = tanh(arr[i]);
+}
+
+Стало:
+const Fw64f *pSrc = arr;
+Fw64f *pDst = malloc(sizeof(Fw64f) * size);
+fwsTanh_64f_A53(pSrc, pDst, size);
+
+
+Чтоб скомпилить:
+gcc -O3 -IFW_1.3.1_Lin64 -LFW_1.3.1_Lin64/lib -Wall -Werror -o lab2-seq lab2.c -lm -lfwBase -lfwSignal
+
+
+Запустить:
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/fomin/Documents/itmo/master/balakshin/lab2/FW_1.3.1_Lin64/lib/
+./lab2-seq 100
